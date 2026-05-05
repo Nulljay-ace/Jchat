@@ -606,7 +606,7 @@ background: var(–border);
     <input class="auth-input" id="auth-password" type="password" placeholder="密码（至少6位）">
     <input class="auth-input" id="auth-username" type="text" placeholder="用户名（昵称）" style="display:none">
     <div class="auth-error" id="auth-error"></div>
-    <button class="auth-btn" id="auth-btn" onclick="handleAuth()">登录</button>
+    <button class="auth-btn" id="auth-btn" onclick="window.handleAuth()">登录</button>
   </div>
 </div>
 
@@ -617,12 +617,12 @@ background: var(–border);
     <div class="sidebar-header">
       <div class="my-avatar" id="my-avatar"></div>
       <span class="my-name" id="my-name">加载中...</span>
-      <button class="logout-btn" onclick="logout()" title="退出登录">⏻</button>
+      <button class="logout-btn" onclick="window.logout()" title="退出登录">⏻</button>
     </div>
     <div class="search-bar">
       <input type="text" placeholder="🔍  搜索聊天" oninput="filterConvs(this.value)">
     </div>
-    <button class="new-chat-btn" onclick="openNewChat()">
+    <button class="new-chat-btn" onclick="window.openNewChat()">
       <span style="font-size:18px">✉️</span> 发起新聊天
     </button>
     <div class="conversations" id="conversations">
@@ -648,8 +648,8 @@ background: var(–border);
     <input class="modal-input" id="target-email" type="email" placeholder="对方邮箱" onkeydown="if(event.key==='Enter')startChat()">
     <div class="modal-err" id="modal-err"></div>
     <div class="modal-actions">
-      <button class="modal-cancel" onclick="closeNewChat()">取消</button>
-      <button class="modal-confirm" onclick="startChat()">开始聊天</button>
+      <button class="modal-cancel" onclick="window.closeNewChat()">取消</button>
+      <button class="modal-confirm" onclick="window.startChat()">开始聊天</button>
     </div>
   </div>
 </div>
