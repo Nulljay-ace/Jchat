@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>聊天应用</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+
+:root {
+–bg: #0f0f13;
+–surface: #1a1a24;
+–surface2: #22222f;
+–border: #2e2e40;
+–accent: #07c160;
+–accent2: #0aad54;
+–text: #e8e8f0;
+–text-dim: #7a7a9a;
+–bubble-me: #07c160;
+–bubble-other: #2a2a3a;
+–sidebar-w: 280px;
+}
+
+- { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+font-family: ‘Noto Sans SC’, sans-serif;
+background: var(–bg);
+color: var(–text);
+height: 100vh;
+display: flex;
+overflow: hidden;
+}
+
+/* ===== AUTH SCREEN ===== */
+#auth-screen {
+position: fixed; inset: 0;
+background: var(–bg);
+display: flex;
+align-items: center;
+justify-content: center;
+z-index: 100;
+animation: fadeIn 0.4s ease;
+}
+
+.auth-box {
+background: var(–surface);
+border: 1px solid var(–border);
+border-radius: 20px;
+padding: 48px 40px;
+width: 360px;
+display: flex;
+flex-direction: column;
+gap: 20px;
+}
+
+.auth-logo {
+text-align: center;
+margin-bottom: 8px;
+}
+
+.auth-logo .icon {
+width: 64px; height: 64px;
+background: linear-gradient(135deg, #07c160, #0099ff);
+border-radius: 18px;
+display: inline-flex;
+align-items: center;
+justify-content: center;
+font-size: 30px;
+margin-bottom: 12px;
+}
+
+.auth-logo h1 {
+font-size: 22px;
+font-weight: 700;
+color: var(–text);
+}
+
+.auth-logo p {
+color: var(–text-dim);
+font-size: 13px;
+margin-top: 4px;
+}
+
+.auth-tabs {
+display: flex;
+gap: 0;
+background: var(–surface2);
+border-radius: 10px;
+padding: 4px;
+}
+
+.auth-tab {
+flex: 1;
+padding: 8px;
+border: none;
+background: none;
+color: var(–text-dim);
+border-radius: 7px;
+cursor: pointer;
+font-family: inherit;
+font-size: 14px;
+transition: all 0.2s;
+}
+
+.auth-tab.active {
+background: var(–accent);
+color: #fff;
+font-weight: 500;
+}
+
+.auth-input {
+width: 100%;
+background: var(–surface2);
+border: 1px solid var(–border);
+border-radius: 10px;
+padding: 13px 16px;
+color: var(–text);
+font-family: inherit;
+font-size: 14px;
+outline: none;
+transition: border-color 0.2s;
+}
+
+.auth-input:focus { border-color: var(–accent); }
+.auth-input::placeholder { color: var(–text-dim); }
+
+.auth-btn {
+width: 100%;
+background: var(–accent);
+color: #fff;
+border: none;
+border-radius: 10px;
+padding: 14px;
+font-family: inherit;
+font-size: 15px;
+font-weight: 500;
+cursor: pointer;
+transition: background 0.2s, transform 0.1s;
+}
+
+.auth-btn:hover { background: var(–accent2); }
+.auth-btn:active { transform: scale(0.98); }
+
+.auth-error {
+color: #ff6b6b;
+font-size: 13px;
+text-align: center;
+min-height: 18px;
+}
+
+/* ===== MAIN APP ===== */
+#app { display: flex; width: 100%; height: 100vh; }
+
+/* SIDEBAR */
+.sidebar {
+width: var(–sidebar-w);
+background: var(–surface);
+border-right: 1px solid var(–border);
+display: flex;
+flex-direction: column;
+flex-shrink: 0;
+}
+
+.sidebar-header {
+padding: 20px 16px 12px;
+border-bottom: 1px solid var(–border);
+display: flex;
+align-items: center;
+justify-content: space-between;
+}
+
+.my-avatar {
+width: 38px; height: 38px;
+border-radius: 50%;
+background: linear-gradient(135deg, #07c160, #0099ff);
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 16px;
+font-weight: 700;
+color: #fff;
+cursor: pointer;
+flex-shrink: 0;
+}
+
+.my-name {
+font-size: 15px;
+font-weight: 500;
+margin-left: 10px;
+flex: 1;
+overflow: hidden;
+text-overflow: ellipsis;
+white-space: nowrap;
+}
+
+.logout-btn {
+background: none;
+border: none;
+color: var(–text-dim);
+cursor: pointer;
+font-size: 18px;
+padding: 4px;
+border-radius: 6px;
+transition: color 0.2s;
+display: flex;
+align-items: center;
+}
+.logout-btn:hover { color: #ff6b6b; }
+
+.search-bar {
+padding: 10px 12px;
+border-bottom: 1px solid var(–border);
+}
+
+.search-bar input {
+width: 100%;
+background: var(–surface2);
+border: 1px solid var(–border);
+border-radius: 8px;
+padding: 8px 12px;
+color: var(–text);
+font-family: inherit;
+font-size: 13px;
+outline: none;
+}
+
+.search-bar input::placeholder { color: var(–text-dim); }
+
+.new-chat-btn {
+margin: 8px 12px;
+background: var(–surface2);
+border: 1px dashed var(–border);
+border-radius: 10px;
+padding: 10px;
+color: var(–text-dim);
+cursor: pointer;
+font-family: inherit;
+font-size: 13px;
+display: flex;
+align-items: center;
+gap: 8px;
+transition: all 0.2s;
+}
+.new-chat-btn:hover { border-color: var(–accent); color: var(–accent); }
+
+.conversations {
+flex: 1;
+overflow-y: auto;
+padding: 4px 0;
+}
+
+.conv-item {
+display: flex;
+align-items: center;
+gap: 10px;
+padding: 10px 14px;
+cursor: pointer;
+border-radius: 10px;
+margin: 2px 6px;
+transition: background 0.15s;
+position: relative;
+}
+
+.conv-item:hover { background: var(–surface2); }
+.conv-item.active { background: var(–surface2); }
+
+.conv-avatar {
+width: 42px; height: 42px;
+border-radius: 50%;
+background: linear-gradient(135deg, #5b5bf8, #9b59b6);
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 17px;
+font-weight: 700;
+color: #fff;
+flex-shrink: 0;
+}
+
+.conv-info { flex: 1; overflow: hidden; }
+.conv-name { font-size: 14px; font-weight: 500; }
+.conv-last {
+font-size: 12px;
+color: var(–text-dim);
+overflow: hidden;
+text-overflow: ellipsis;
+white-space: nowrap;
+margin-top: 2px;
+}
+
+.conv-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+.conv-time { font-size: 11px; color: var(–text-dim); }
+.unread-badge {
+background: var(–accent);
+color: #fff;
+border-radius: 10px;
+font-size: 11px;
+padding: 1px 6px;
+font-weight: 600;
+}
+
+/* CHAT AREA */
+.chat-area {
+flex: 1;
+display: flex;
+flex-direction: column;
+background: var(–bg);
+min-width: 0;
+}
+
+.chat-header {
+padding: 16px 20px;
+border-bottom: 1px solid var(–border);
+display: flex;
+align-items: center;
+gap: 12px;
+background: var(–surface);
+}
+
+.chat-header-avatar {
+width: 38px; height: 38px;
+border-radius: 50%;
+background: linear-gradient(135deg, #5b5bf8, #9b59b6);
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 16px;
+font-weight: 700;
+color: #fff;
+}
+
+.chat-header-info h2 { font-size: 15px; font-weight: 600; }
+.chat-header-info p { font-size: 12px; color: var(–accent); margin-top: 2px; }
+
+.messages {
+flex: 1;
+overflow-y: auto;
+padding: 20px;
+display: flex;
+flex-direction: column;
+gap: 12px;
+}
+
+.msg-row {
+display: flex;
+align-items: flex-end;
+gap: 8px;
+animation: slideUp 0.2s ease;
+}
+
+.msg-row.me { flex-direction: row-reverse; }
+
+.msg-avatar {
+width: 32px; height: 32px;
+border-radius: 50%;
+background: linear-gradient(135deg, #5b5bf8, #9b59b6);
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 13px;
+font-weight: 700;
+color: #fff;
+flex-shrink: 0;
+}
+
+.msg-row.me .msg-avatar {
+background: linear-gradient(135deg, #07c160, #0099ff);
+}
+
+.msg-content { max-width: 65%; display: flex; flex-direction: column; gap: 2px; }
+.msg-row.me .msg-content { align-items: flex-end; }
+
+.msg-sender { font-size: 11px; color: var(–text-dim); margin-bottom: 2px; padding: 0 4px; }
+
+.bubble {
+background: var(–bubble-other);
+color: var(–text);
+padding: 10px 14px;
+border-radius: 16px 16px 16px 4px;
+font-size: 14px;
+line-height: 1.5;
+word-break: break-word;
+}
+
+.msg-row.me .bubble {
+background: var(–bubble-me);
+color: #fff;
+border-radius: 16px 16px 4px 16px;
+}
+
+.msg-time { font-size: 10px; color: var(–text-dim); padding: 0 4px; }
+
+/* EMPTY STATE */
+.empty-state {
+flex: 1;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+color: var(–text-dim);
+gap: 12px;
+}
+
+.empty-state .big-icon { font-size: 60px; opacity: 0.3; }
+.empty-state p { font-size: 14px; }
+
+/* INPUT */
+.input-area {
+padding: 12px 16px;
+border-top: 1px solid var(–border);
+background: var(–surface);
+display: flex;
+gap: 10px;
+align-items: flex-end;
+}
+
+.msg-input {
+flex: 1;
+background: var(–surface2);
+border: 1px solid var(–border);
+border-radius: 12px;
+padding: 11px 14px;
+color: var(–text);
+font-family: inherit;
+font-size: 14px;
+outline: none;
+resize: none;
+max-height: 120px;
+line-height: 1.5;
+transition: border-color 0.2s;
+}
+
+.msg-input:focus { border-color: var(–accent); }
+.msg-input::placeholder { color: var(–text-dim); }
+
+.send-btn {
+width: 42px; height: 42px;
+background: var(–accent);
+border: none;
+border-radius: 50%;
+color: #fff;
+font-size: 18px;
+cursor: pointer;
+display: flex;
+align-items: center;
+justify-content: center;
+transition: background 0.2s, transform 0.1s;
+flex-shrink: 0;
+}
+
+.send-btn:hover { background: var(–accent2); }
+.send-btn:active { transform: scale(0.92); }
+.send-btn:disabled { background: var(–border); cursor: default; }
+
+/* NEW CHAT MODAL */
+.modal-overlay {
+position: fixed; inset: 0;
+background: rgba(0,0,0,0.6);
+display: flex;
+align-items: center;
+justify-content: center;
+z-index: 200;
+animation: fadeIn 0.2s ease;
+}
+
+.modal {
+background: var(–surface);
+border: 1px solid var(–border);
+border-radius: 16px;
+padding: 28px;
+width: 340px;
+display: flex;
+flex-direction: column;
+gap: 14px;
+}
+
+.modal h3 { font-size: 17px; font-weight: 600; }
+.modal p { color: var(–text-dim); font-size: 13px; }
+
+.modal-input {
+width: 100%;
+background: var(–surface2);
+border: 1px solid var(–border);
+border-radius: 10px;
+padding: 12px 14px;
+color: var(–text);
+font-family: inherit;
+font-size: 14px;
+outline: none;
+transition: border-color 0.2s;
+}
+.modal-input:focus { border-color: var(–accent); }
+.modal-input::placeholder { color: var(–text-dim); }
+
+.modal-actions { display: flex; gap: 10px; }
+.modal-cancel {
+flex: 1;
+padding: 11px;
+background: var(–surface2);
+border: 1px solid var(–border);
+border-radius: 10px;
+color: var(–text-dim);
+cursor: pointer;
+font-family: inherit;
+font-size: 14px;
+transition: background 0.2s;
+}
+.modal-cancel:hover { background: var(–border); }
+
+.modal-confirm {
+flex: 1;
+padding: 11px;
+background: var(–accent);
+border: none;
+border-radius: 10px;
+color: #fff;
+cursor: pointer;
+font-family: inherit;
+font-size: 14px;
+font-weight: 500;
+transition: background 0.2s;
+}
+.modal-confirm:hover { background: var(–accent2); }
+
+.modal-err { color: #ff6b6b; font-size: 13px; min-height: 16px; }
+
+/* TOAST */
+.toast {
+position: fixed;
+bottom: 30px;
+left: 50%;
+transform: translateX(-50%);
+background: var(–surface2);
+border: 1px solid var(–border);
+color: var(–text);
+padding: 10px 20px;
+border-radius: 20px;
+font-size: 13px;
+z-index: 300;
+animation: toastIn 0.3s ease;
+}
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(–border); border-radius: 4px; }
+
+/* ANIMATIONS */
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes toastIn { from { opacity: 0; transform: translateX(-50%) translateY(10px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+
+.spinner {
+display: inline-block;
+width: 16px; height: 16px;
+border: 2px solid rgba(255,255,255,0.3);
+border-top-color: #fff;
+border-radius: 50%;
+animation: spin 0.6s linear infinite;
+vertical-align: middle;
+margin-right: 6px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.day-divider {
+text-align: center;
+color: var(–text-dim);
+font-size: 11px;
+margin: 4px 0;
+position: relative;
+}
+.day-divider::before, .day-divider::after {
+content: ‘’;
+position: absolute;
+top: 50%;
+width: 35%;
+height: 1px;
+background: var(–border);
+}
+.day-divider::before { left: 0; }
+.day-divider::after { right: 0; }
+</style>
+
+</head>
+<body>
+
+<!-- AUTH SCREEN -->
+
+<div id="auth-screen">
+  <div class="auth-box">
+    <div class="auth-logo">
+      <div class="icon">💬</div>
+      <h1>轻聊</h1>
+      <p>简单、快速的即时通讯</p>
+    </div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchTab('login')">登录</button>
+      <button class="auth-tab" onclick="switchTab('register')">注册</button>
+    </div>
+    <input class="auth-input" id="auth-email" type="email" placeholder="邮箱地址">
+    <input class="auth-input" id="auth-password" type="password" placeholder="密码（至少6位）">
+    <input class="auth-input" id="auth-username" type="text" placeholder="用户名（昵称）" style="display:none">
+    <div class="auth-error" id="auth-error"></div>
+    <button class="auth-btn" id="auth-btn" onclick="handleAuth()">登录</button>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+
+<div id="app" style="display:none">
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <div class="my-avatar" id="my-avatar"></div>
+      <span class="my-name" id="my-name">加载中...</span>
+      <button class="logout-btn" onclick="logout()" title="退出登录">⏻</button>
+    </div>
+    <div class="search-bar">
+      <input type="text" placeholder="🔍  搜索聊天" oninput="filterConvs(this.value)">
+    </div>
+    <button class="new-chat-btn" onclick="openNewChat()">
+      <span style="font-size:18px">✉️</span> 发起新聊天
+    </button>
+    <div class="conversations" id="conversations">
+      <div style="padding:20px;text-align:center;color:var(--text-dim);font-size:13px">暂无聊天，点击上方开始</div>
+    </div>
+  </div>
+
+  <div class="chat-area" id="chat-area">
+    <div class="empty-state">
+      <div class="big-icon">💬</div>
+      <p>选择一个聊天开始对话</p>
+      <p style="font-size:12px">或者点击「发起新聊天」</p>
+    </div>
+  </div>
+</div>
+
+<!-- NEW CHAT MODAL -->
+
+<div class="modal-overlay" id="new-chat-modal" style="display:none" onclick="if(event.target===this)closeNewChat()">
+  <div class="modal">
+    <h3>发起新聊天</h3>
+    <p>输入对方的邮箱地址来开始聊天</p>
+    <input class="modal-input" id="target-email" type="email" placeholder="对方邮箱" onkeydown="if(event.key==='Enter')startChat()">
+    <div class="modal-err" id="modal-err"></div>
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="closeNewChat()">取消</button>
+      <button class="modal-confirm" onclick="startChat()">开始聊天</button>
+    </div>
+  </div>
+</div>
+
+<!-- Firebase SDK -->
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import {
+  getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
+  signOut, onAuthStateChanged, updateProfile
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import {
+  getFirestore, doc, setDoc, getDoc, collection, query, where,
+  orderBy, onSnapshot, addDoc, serverTimestamp, getDocs,
+  updateDoc, arrayUnion
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+// ============================================================
+// ⚠️  在下方填入你自己的 Firebase 配置
+//     步骤见页面底部说明
+// ============================================================
+const firebaseConfig = {
+  apiKey: "AIzaSyAUtG664qKnqpNOd0tYBpmZYNOhjsbnb9I",
+  authDomain: "jchat-7d193.firebaseapp.com",
+  projectId: "jchat-7d193",
+  storageBucket: "jchat-7d193.firebasestorage.app",
+  messagingSenderId: "543992476038",
+  appId: "1:543992476038:web:92a82cd739cdc558c3bc07",
+  measurementId: "G-CRTTEDZ32L"
+};
+
+// 检测是否已配置
+const isConfigured = firebaseConfig.apiKey !== "YOUR_API_KEY";
+
+const app = isConfigured ? initializeApp(firebaseConfig) : null;
+const auth = isConfigured ? getAuth(app) : null;
+const db = isConfigured ? getFirestore(app) : null;
+
+// ============================================================
+// GLOBAL STATE
+// ============================================================
+let currentUser = null;
+let currentConvId = null;
+let unsubMessages = null;
+let unsubConvs = null;
+let allConvs = [];
+let currentTab = 'login';
+
+// ============================================================
+// AUTH
+// ============================================================
+window.switchTab = (tab) => {
+  currentTab = tab;
+  document.querySelectorAll('.auth-tab').forEach((t,i) => {
+    t.classList.toggle('active', (i===0 && tab==='login') || (i===1 && tab==='register'));
+  });
+  document.getElementById('auth-username').style.display = tab === 'register' ? '' : 'none';
+  document.getElementById('auth-btn').textContent = tab === 'login' ? '登录' : '注册';
+  document.getElementById('auth-error').textContent = '';
+};
+
+window.handleAuth = async () => {
+  if (!isConfigured) {
+    document.getElementById('auth-error').textContent = '⚠️ 请先配置 Firebase（见页面说明）';
+    return;
+  }
+  const email = document.getElementById('auth-email').value.trim();
+  const password = document.getElementById('auth-password').value;
+  const username = document.getElementById('auth-username').value.trim();
+  const btn = document.getElementById('auth-btn');
+  const errEl = document.getElementById('auth-error');
+  errEl.textContent = '';
+
+  if (!email || !password) { errEl.textContent = '请填写邮箱和密码'; return; }
+  if (currentTab === 'register' && !username) { errEl.textContent = '请填写用户名'; return; }
+
+  btn.innerHTML = '<span class="spinner"></span>处理中...';
+  btn.disabled = true;
+
+  try {
+    if (currentTab === 'register') {
+      const cred = await createUserWithEmailAndPassword(auth, email, password);
+      await updateProfile(cred.user, { displayName: username });
+      await setDoc(doc(db, 'users', cred.user.uid), {
+        uid: cred.user.uid,
+        email: email.toLowerCase(),
+        displayName: username,
+        createdAt: serverTimestamp()
+      });
+    } else {
+      await signInWithEmailAndPassword(auth, email, password);
+    }
+  } catch (e) {
+    const msgs = {
+      'auth/email-already-in-use': '该邮箱已被注册',
+      'auth/invalid-email': '邮箱格式不正确',
+      'auth/weak-password': '密码至少需要6位',
+      'auth/user-not-found': '用户不存在',
+      'auth/wrong-password': '密码错误',
+      'auth/invalid-credential': '邮箱或密码错误',
+    };
+    errEl.textContent = msgs[e.code] || '操作失败，请重试';
+    btn.innerHTML = currentTab === 'login' ? '登录' : '注册';
+    btn.disabled = false;
+  }
+};
+
+window.logout = async () => {
+  if (unsubMessages) unsubMessages();
+  if (unsubConvs) unsubConvs();
+  await signOut(auth);
+};
+
+if (isConfigured) {
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      currentUser = user;
+      document.getElementById('auth-screen').style.display = 'none';
+      document.getElementById('app').style.display = 'flex';
+      initUI();
+      listenConversations();
+    } else {
+      currentUser = null;
+      document.getElementById('auth-screen').style.display = 'flex';
+      document.getElementById('app').style.display = 'none';
+      document.getElementById('auth-btn').innerHTML = currentTab === 'login' ? '登录' : '注册';
+      document.getElementById('auth-btn').disabled = false;
+    }
+  });
+} else {
+  // Demo mode hint
+  setTimeout(() => {
+    document.getElementById('auth-error').textContent = '⚠️ 未配置 Firebase，请查看说明';
+  }, 500);
+}
+
+// ============================================================
+// UI INIT
+// ============================================================
+function initUI() {
+  const name = currentUser.displayName || currentUser.email.split('@')[0];
+  document.getElementById('my-name').textContent = name;
+  document.getElementById('my-avatar').textContent = name[0].toUpperCase();
+}
+
+// ============================================================
+// CONVERSATIONS
+// ============================================================
+function listenConversations() {
+  if (!db || !currentUser) return;
+  const q = query(
+    collection(db, 'conversations'),
+    where('members', 'array-contains', currentUser.uid)
+  );
+  unsubConvs = onSnapshot(q, (snap) => {
+    allConvs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    allConvs.sort((a, b) => {
+      const ta = a.lastTime?.seconds || 0;
+      const tb = b.lastTime?.seconds || 0;
+      return tb - ta;
+    });
+    renderConvList(allConvs);
+  });
+}
+
+function renderConvList(convs) {
+  const el = document.getElementById('conversations');
+  if (convs.length === 0) {
+    el.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-dim);font-size:13px">暂无聊天，点击上方开始</div>';
+    return;
+  }
+  el.innerHTML = convs.map(c => {
+    const other = getOtherMember(c);
+    const initial = (other.name || '?')[0].toUpperCase();
+    const colors = ['135deg,#5b5bf8,#9b59b6','135deg,#e74c3c,#c0392b','135deg,#f39c12,#e67e22','135deg,#1abc9c,#16a085','135deg,#3498db,#2980b9'];
+    const colorIdx = other.uid ? other.uid.charCodeAt(0) % colors.length : 0;
+    const time = c.lastTime ? formatTime(c.lastTime.toDate()) : '';
+    const isActive = c.id === currentConvId;
+    return `
+      <div class="conv-item ${isActive ? 'active' : ''}" onclick="openConversation('${c.id}')">
+        <div class="conv-avatar" style="background:linear-gradient(${colors[colorIdx]})">${initial}</div>
+        <div class="conv-info">
+          <div class="conv-name">${escHtml(other.name || other.email || '未知用户')}</div>
+          <div class="conv-last">${escHtml(c.lastMessage || '开始聊天')}</div>
+        </div>
+        <div class="conv-meta">
+          <span class="conv-time">${time}</span>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function getOtherMember(conv) {
+  const otherUid = conv.members.find(m => m !== currentUser.uid);
+  const info = conv.memberInfo || {};
+  return { uid: otherUid, ...(info[otherUid] || {}) };
+}
+
+window.filterConvs = (val) => {
+  const filtered = allConvs.filter(c => {
+    const other = getOtherMember(c);
+    const name = (other.name || other.email || '').toLowerCase();
+    return name.includes(val.toLowerCase());
+  });
+  renderConvList(filtered);
+};
+
+// ============================================================
+// OPEN CONVERSATION
+// ============================================================
+window.openConversation = (convId) => {
+  currentConvId = convId;
+  const conv = allConvs.find(c => c.id === convId);
+  if (!conv) return;
+  const other = getOtherMember(conv);
+  renderChatArea(other);
+  renderConvList(allConvs);
+  if (unsubMessages) unsubMessages();
+  listenMessages(convId);
+};
+
+function renderChatArea(other) {
+  const initial = (other.name || '?')[0].toUpperCase();
+  document.getElementById('chat-area').innerHTML = `
+    <div class="chat-header">
+      <div class="chat-header-avatar">${initial}</div>
+      <div class="chat-header-info">
+        <h2>${escHtml(other.name || other.email || '聊天')}</h2>
+        <p>在线</p>
+      </div>
+    </div>
+    <div class="messages" id="messages"></div>
+    <div class="input-area">
+      <textarea class="msg-input" id="msg-input" placeholder="输入消息..." rows="1"
+        onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+
+```
+  <button class="send-btn" id="send-btn" onclick="sendMessage()">➤</button>
+</div>`;
+```
+
+}
+
+// ============================================================
+// MESSAGES
+// ============================================================
+function listenMessages(convId) {
+const q = query(
+collection(db, ‘conversations’, convId, ‘messages’),
+orderBy(‘createdAt’, ‘asc’)
+);
+unsubMessages = onSnapshot(q, (snap) => {
+const msgs = snap.docs.map(d => ({ id: d.id, …d.data() }));
+renderMessages(msgs);
+});
+}
+
+function renderMessages(msgs) {
+const el = document.getElementById(‘messages’);
+if (!el) return;
+let lastDate = ‘’;
+el.innerHTML = msgs.map(m => {
+const isMe = m.senderId === currentUser.uid;
+const time = m.createdAt ? formatTime(m.createdAt.toDate()) : ‘’;
+const date = m.createdAt ? formatDate(m.createdAt.toDate()) : ‘’;
+const divider = date !== lastDate ? `<div class="day-divider">${date}</div>` : ‘’;
+lastDate = date;
+const initial = (m.senderName || ‘?’)[0].toUpperCase();
+return `${divider} <div class="msg-row ${isMe ? 'me' : ''}"> <div class="msg-avatar">${initial}</div> <div class="msg-content"> ${!isMe ? `<div class="msg-sender">${escHtml(m.senderName || ‘’)}</div>` : ''} <div class="bubble">${escHtml(m.text)}</div> <div class="msg-time">${time}</div> </div> </div>`;
+}).join(’’);
+el.scrollTop = el.scrollHeight;
+}
+
+window.sendMessage = async () => {
+const input = document.getElementById(‘msg-input’);
+if (!input) return;
+const text = input.value.trim();
+if (!text || !currentConvId) return;
+input.value = ‘’;
+input.style.height = ‘’;
+const name = currentUser.displayName || currentUser.email.split(’@’)[0];
+try {
+await addDoc(collection(db, ‘conversations’, currentConvId, ‘messages’), {
+text,
+senderId: currentUser.uid,
+senderName: name,
+createdAt: serverTimestamp()
+});
+await updateDoc(doc(db, ‘conversations’, currentConvId), {
+lastMessage: text,
+lastTime: serverTimestamp()
+});
+} catch (e) {
+showToast(‘发送失败，请重试’);
+}
+};
+
+window.handleKey = (e) => {
+if (e.key === ‘Enter’ && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+};
+
+window.autoResize = (el) => {
+el.style.height = ‘auto’;
+el.style.height = Math.min(el.scrollHeight, 120) + ‘px’;
+};
+
+// ============================================================
+// NEW CHAT
+// ============================================================
+window.openNewChat = () => {
+if (!isConfigured) { showToast(‘请先配置 Firebase’); return; }
+document.getElementById(‘new-chat-modal’).style.display = ‘flex’;
+document.getElementById(‘modal-err’).textContent = ‘’;
+document.getElementById(‘target-email’).value = ‘’;
+setTimeout(() => document.getElementById(‘target-email’).focus(), 100);
+};
+
+window.closeNewChat = () => {
+document.getElementById(‘new-chat-modal’).style.display = ‘none’;
+};
+
+window.startChat = async () => {
+const email = document.getElementById(‘target-email’).value.trim().toLowerCase();
+const errEl = document.getElementById(‘modal-err’);
+errEl.textContent = ‘’;
+
+if (!email) { errEl.textContent = ‘请输入邮箱’; return; }
+if (email === currentUser.email.toLowerCase()) { errEl.textContent = ‘不能和自己聊天’; return; }
+
+errEl.textContent = ‘🔍 查找用户中…’;
+
+try {
+const q = query(collection(db, ‘users’), where(‘email’, ‘==’, email));
+const snap = await getDocs(q);
+if (snap.empty) { errEl.textContent = ‘找不到该用户，请确认邮箱是否正确’; return; }
+
+```
+const targetUser = snap.docs[0].data();
+const members = [currentUser.uid, targetUser.uid].sort();
+const convId = members.join('_');
+
+const convRef = doc(db, 'conversations', convId);
+const existing = await getDoc(convRef);
+if (!existing.exists()) {
+  const myName = currentUser.displayName || currentUser.email.split('@')[0];
+  await setDoc(convRef, {
+    members,
+    memberInfo: {
+      [currentUser.uid]: { name: myName, email: currentUser.email },
+      [targetUser.uid]: { name: targetUser.displayName, email: targetUser.email }
+    },
+    lastMessage: '',
+    lastTime: serverTimestamp()
+  });
+}
+
+closeNewChat();
+setTimeout(() => openConversation(convId), 300);
+```
+
+} catch (e) {
+errEl.textContent = ‘发生错误，请重试’;
+}
+};
+
+// ============================================================
+// UTILS
+// ============================================================
+function formatTime(date) {
+const now = new Date();
+const diff = now - date;
+if (diff < 60000) return ‘刚刚’;
+if (diff < 3600000) return Math.floor(diff/60000) + ‘分钟前’;
+if (date.toDateString() === now.toDateString()) return date.toLocaleTimeString(‘zh’, {hour:‘2-digit’,minute:‘2-digit’});
+return date.toLocaleDateString(‘zh’, {month:‘numeric’,day:‘numeric’});
+}
+
+function formatDate(date) {
+const now = new Date();
+if (date.toDateString() === now.toDateString()) return ‘今天’;
+const yesterday = new Date(now); yesterday.setDate(yesterday.getDate()-1);
+if (date.toDateString() === yesterday.toDateString()) return ‘昨天’;
+return date.toLocaleDateString(‘zh’, {year:‘numeric’,month:‘long’,day:‘numeric’});
+}
+
+function escHtml(str) {
+return String(str).replace(/&/g,’&’).replace(/</g,’<’).replace(/>/g,’>’).replace(/”/g,’"’);
+}
+
+function showToast(msg) {
+const t = document.createElement(‘div’);
+t.className = ‘toast’;
+t.textContent = msg;
+document.body.appendChild(t);
+setTimeout(() => t.remove(), 2500);
+}
+</script>
+
+<!-- 使用说明（不影响界面） -->
+
+<!--
+=================================================================
+📋 使用说明 — 配置 Firebase（免费）
+=================================================================
+
+1. 前往 https://console.firebase.google.com
+2. 点击「添加项目」，随便起个名字
+3. 项目创建好后，点击「</> 网页应用」添加应用
+4. 复制 firebaseConfig 里的内容，替换本文件顶部的 YOUR_API_KEY 等
+5. 在左侧菜单：
+   - 点「Authentication」→「开始使用」→ 启用「电子邮件/密码」
+   - 点「Firestore Database」→「创建数据库」→「测试模式」
+6. 保存文件，用浏览器打开即可使用！
+
+如有问题，把错误信息告诉我，我来帮你解决。
+=================================================================
+-->
+
+</body>
+</h
