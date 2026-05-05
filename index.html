@@ -599,8 +599,8 @@ background: var(–border);
       <p>简单、快速的即时通讯</p>
     </div>
     <div class="auth-tabs">
-      <button class="auth-tab active" onclick="switchTab('login')">登录</button>
-      <button class="auth-tab" onclick="switchTab('register')">注册</button>
+      <button class="auth-tab active" id="tab-login" onclick="window.switchTab('login')">登录</button>
+      <button class="auth-tab" id="tab-register" onclick="window.switchTab('register')">注册</button>
     </div>
     <input class="auth-input" id="auth-email" type="email" placeholder="邮箱地址">
     <input class="auth-input" id="auth-password" type="password" placeholder="密码（至少6位）">
