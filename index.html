@@ -228,7 +228,7 @@ async function openChat(email, name) {
 g(‘send-btn’).addEventListener(‘click’, sendMsg);
 g(‘msg-input’).addEventListener(‘keydown’, function(e){ if(e.key===‘Enter’&&!e.shiftKey){e.preventDefault();sendMsg();} });
 loadConvs();
-await loadMsgs();
+loadMsgs();
 if (msgInterval) clearInterval(msgInterval);
 msgInterval = setInterval(loadMsgs, 3000);
 }
